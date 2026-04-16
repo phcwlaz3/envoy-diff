@@ -54,6 +54,15 @@ def test_lint_json_output_is_valid(dirty_env_file, capsys):
     assert "error_count" in data
 
 
+def test_lint_json_output_error_count_matches_issues(dirty_env_file, capsys):
+    """Ensure error_count in JSON output is consistent with the issues list length."""
+    args = _make_args(dirty_env_file, fmt="json")
+    run_lint_command(args)
+    captured = capsys.readouterr()
+    data = json.loads(captured.out)
+    assert data["error_count"] == len(data["issues"])
+
+
 def test_lint_strict_warns_on_warnings(tmp_path, capsys):
     f = tmp_path / "warn.env"
     f.write_text("DOUBLE__SCORE=value\n")
