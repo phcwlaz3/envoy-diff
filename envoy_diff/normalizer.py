@@ -41,11 +41,19 @@ def _normalize_boolean(value: str) -> str:
     return value
 
 
+def _normalize_url(value: str) -> str:
+    """Strip trailing slashes from URL-like values."""
+    if value.startswith(("http://", "https://")):
+        return value.rstrip("/")
+    return value
+
+
 def normalize_config(
     config: Dict[str, str],
     strip_quotes: bool = True,
     normalize_booleans: bool = True,
     strip_whitespace: bool = True,
+    normalize_urls: bool = True,
 ) -> NormalizeResult:
     """Return a NormalizeResult with cleaned-up config values."""
     normalized: Dict[str, str] = {}
@@ -62,6 +70,9 @@ def normalize_config(
 
         if normalize_booleans:
             value = _normalize_boolean(value)
+
+        if normalize_urls:
+            value = _normalize_url(value)
 
         if value != raw_value:
             changes.append(f"{key}: {raw_value!r} -> {value!r}")
