@@ -42,6 +42,16 @@ def resolve_config(
       1. System environment variables (if use_system_env=True)
       2. Provided config
       3. Base config fallback
+
+    Args:
+        config: The primary configuration dictionary to resolve.
+        base: An optional base/default config to fall back to for missing keys.
+        use_system_env: If True, system environment variables take highest priority.
+        required_keys: Keys that must be present and non-empty in the resolved result.
+
+    Returns:
+        A ResolveResult containing the resolved values, any overridden keys, and
+        any required keys that could not be resolved.
     """
     base = base or {}
     required_keys = required_keys or []
