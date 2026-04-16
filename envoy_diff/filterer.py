@@ -40,8 +40,11 @@ def filter_config(
     filtered: Dict[str, str] = {}
     excluded: List[str] = []
 
-    inc_re = re.compile(include_pattern) if include_pattern else None
-    exc_re = re.compile(exclude_pattern) if exclude_pattern else None
+    try:
+        inc_re = re.compile(include_pattern) if include_pattern else None
+        exc_re = re.compile(exclude_pattern) if exclude_pattern else None
+    except re.error as e:
+        raise ValueError(f"Invalid regex pattern: {e}") from e
 
     for key, value in config.items():
         keep = True
