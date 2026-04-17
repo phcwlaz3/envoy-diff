@@ -77,6 +77,18 @@ def test_lint_missing_file_returns_error(tmp_path):
     assert code == 1
 
 
+def test_lint_dirty_file_json_issues_have_required_fields(dirty_env_file, capsys):
+    """Each issue in JSON output should contain 'line', 'key', and 'message' fields."""
+    args = _make_args(dirty_env_file, fmt="json")
+    run_lint_command(args)
+    captured = capsys.readouterr()
+    data = json.loads(captured.out)
+    for issue in data["issues"]:
+        assert "line" in issue, f"Missing 'line' in issue: {issue}"
+        assert "key" in issue, f"Missing 'key' in issue: {issue}"
+        assert "message" in issue, f"Missing 'message' in issue: {issue}"
+
+
 def test_add_lint_subparsers_registers_command():
     parser = argparse.ArgumentParser()
     sub = parser.add_subparsers(dest="command")
