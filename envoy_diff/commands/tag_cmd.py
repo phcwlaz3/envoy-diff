@@ -14,6 +14,18 @@ _DEFAULT_RULES = {
 }
 
 
+def _load_rules(rules_path: str) -> dict:
+    """Load tag rules from a JSON file, validating basic structure."""
+    with open(rules_path) as fh:
+        rules = json.load(fh)
+    if not isinstance(rules, dict):
+        raise ValueError("Rules file must contain a JSON object at the top level")
+    for tag, patterns in rules.items():
+        if not isinstance(patterns, list) or not all(isinstance(p, str) for p in patterns):
+            raise ValueError(f"Patterns for tag '{tag}' must be a list of strings")
+    return rules
+
+
 def add_tag_subparsers(subparsers) -> None:
     p = subparsers.add_parser("tag", help="Tag config keys with labels")
     p.add_argument("file", help="Path to env or JSON config file")
@@ -35,8 +47,7 @@ def run_tag_command(args: argparse.Namespace) -> int:
     rules = _DEFAULT_RULES
     if args.rules:
         try:
-            with open(args.rules) as fh:
-                rules = json.load(fh)
+            rules = _load_rules(args.rules)
         except Exception as exc:
             print(f"Error loading rules file: {exc}")
             return 1
