@@ -83,3 +83,19 @@ def test_original_config_unchanged(sample_config):
     original_copy = dict(sample_config)
     prune_config(sample_config, patterns=["DB_*"])
     assert sample_config == original_copy
+
+
+def test_prune_nonexistent_key_ignored(sample_config):
+    """Pruning a key that doesn't exist should not raise and should not affect result."""
+    result = prune_config(sample_config, keys=["NONEXISTENT_KEY"])
+    assert result.pruned == sample_config
+    assert result.removed_keys == []
+    assert result.has_removals() is False
+
+
+def test_prune_empty_config():
+    """Pruning an empty config should return empty pruned dict with no removals."""
+    result = prune_config({}, keys=["DB_HOST"], patterns=["APP_*"])
+    assert result.pruned == {}
+    assert result.removed_keys == []
+    assert result.removed_count() == 0
