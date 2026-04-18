@@ -83,3 +83,13 @@ def test_specific_keys_only():
 def test_original_preserved(sample_config):
     result = truncate_config(sample_config)
     assert result.original is sample_config
+
+
+def test_empty_config():
+    """truncate_config should handle an empty dict without errors."""
+    result = truncate_config({})
+    assert result.truncated == {}
+    assert result.truncated_keys == []
+    assert result.has_truncations() is False
+    assert result.truncation_count() == 0
+    assert result.summary() == "No values truncated."
