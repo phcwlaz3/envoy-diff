@@ -84,3 +84,18 @@ def test_summary_string(sample_config):
 def test_original_config_preserved(sample_config):
     result = label_config(sample_config)
     assert result.config == sample_config
+
+
+def test_api_token_labeled(sample_config):
+    """API_TOKEN should be labeled as a secret due to TOKEN keyword match."""
+    result = label_config(sample_config)
+    assert "secret" in result.labels["API_TOKEN"]
+
+
+def test_empty_config():
+    """label_config should handle an empty config without errors."""
+    result = label_config({})
+    assert isinstance(result, LabelResult)
+    assert result.labels == {}
+    assert not result.has_labels()
+    assert result.label_count() == 0
