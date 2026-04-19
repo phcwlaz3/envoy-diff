@@ -88,3 +88,12 @@ def test_resolve_override_count_property(monkeypatch):
 def test_resolve_missing_count_property():
     result = resolve_config({}, required_keys=["A", "B", "C"])
     assert result.missing_count == 3
+
+
+def test_resolve_base_keys_not_in_config_are_included(base_config):
+    """Keys present only in base should appear in resolved output."""
+    config = {"HOST": "override-host"}
+    result = resolve_config(config, base=base_config)
+    assert "PORT" in result.resolved
+    assert "DEBUG" in result.resolved
+    assert result.resolved["PORT"] == "5432"
