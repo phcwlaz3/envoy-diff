@@ -31,6 +31,18 @@ class DiffResult:
             return "No differences found."
         return "\n".join(lines)
 
+    def to_dict(self) -> Dict:
+        """Return a plain dictionary representation of the diff result.
+
+        Useful for serialisation (e.g. JSON output or test assertions).
+        """
+        return {
+            "added": self.added,
+            "removed": self.removed,
+            "changed": {k: {"old": old, "new": new} for k, (old, new) in self.changed.items()},
+            "unchanged": sorted(self.unchanged),
+        }
+
 
 def diff_configs(
     source: Dict[str, str],
