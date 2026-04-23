@@ -28,6 +28,29 @@ class HighlightResult:
             parts.append(f"{len(self.changed_keys)} changed")
         return "Highlighted: " + ", ".join(parts) + "."
 
+    def filter_by_status(self, status: str) -> Dict[str, str]:
+        """Return only highlighted entries matching the given status marker.
+
+        Args:
+            status: One of 'added', 'removed', 'changed', or 'unchanged'.
+
+        Returns:
+            A dict of key/value pairs whose highlighted values carry the
+            corresponding marker prefix.
+        """
+        marker_map = {
+            "added": ADDED_MARKER,
+            "removed": REMOVED_MARKER,
+            "changed": CHANGED_MARKER,
+            "unchanged": UNCHANGED_MARKER,
+        }
+        if status not in marker_map:
+            raise ValueError(
+                f"Invalid status {status!r}. Expected one of: {list(marker_map)}"
+            )
+        prefix = marker_map[status]
+        return {k: v for k, v in self.highlighted.items() if v.startswith(prefix)}
+
 
 ADDED_MARKER = "[+]"
 REMOVED_MARKER = "[-]"
