@@ -24,6 +24,23 @@ def add_summarize_subparsers(subparsers: argparse._SubParsersAction) -> None:
     parser.set_defaults(func=run_summarize_command)
 
 
+def _format_text_output(result) -> str:
+    """Format a SummaryResult as human-readable text.
+
+    Returns a multi-line string with the summary header followed by
+    individual statistics for total keys, unique values, empty values,
+    and duplicate groups.
+    """
+    lines = [
+        result.summary(),
+        f"  Total keys       : {result.total_keys}",
+        f"  Unique values    : {result.unique_values}",
+        f"  Empty values     : {result.empty_count}",
+        f"  Duplicate groups : {result.duplicate_group_count}",
+    ]
+    return "\n".join(lines)
+
+
 def run_summarize_command(args: argparse.Namespace) -> int:
     try:
         config = load_config(args.file)
@@ -43,10 +60,6 @@ def run_summarize_command(args: argparse.Namespace) -> int:
         }
         print(json.dumps(out, indent=2))
     else:
-        print(result.summary())
-        print(f"  Total keys       : {result.total_keys}")
-        print(f"  Unique values    : {result.unique_values}")
-        print(f"  Empty values     : {result.empty_count}")
-        print(f"  Duplicate groups : {result.duplicate_group_count}")
+        print(_format_text_output(result))
 
     return 0
