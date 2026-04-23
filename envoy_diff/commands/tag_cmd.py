@@ -26,6 +26,28 @@ def _load_rules(rules_path: str) -> dict:
     return rules
 
 
+def _merge_rules(base: dict, override: dict) -> dict:
+    """Merge override rules into base rules, combining pattern lists per tag.
+
+    Tags present in both dicts have their pattern lists unioned (duplicates
+    removed).  Tags exclusive to either dict are included as-is.
+
+    Args:
+        base: The default or existing rule set.
+        override: Rules loaded from a user-supplied file.
+
+    Returns:
+        A new dict with merged tag-to-patterns mappings.
+    """
+    merged = {tag: list(patterns) for tag, patterns in base.items()}
+    for tag, patterns in override.items():
+        if tag in merged:
+            merged[tag] = list(dict.fromkeys(merged[tag] + patterns))
+        else:
+            merged[tag] = list(patterns)
+    return merged
+
+
 def add_tag_subparsers(subparsers) -> None:
     p = subparsers.add_parser("tag", help="Tag config keys with labels")
     p.add_argument("file", help="Path to env or JSON config file")
@@ -34,6 +56,13 @@ def add_tag_subparsers(subparsers) -> None:
     )
     p.add_argument(
         "--rules", help="Path to JSON file with custom tag rules", default=None
+    )
+    p.add_argument(
+        "--merge-rules",
+        help="Merge custom rules with built-in defaults instead of replacing them",
+        action="store_true",
+        default=False,
+        dest="merge_rules",
     )
 
 
@@ -47,10 +76,11 @@ def run_tag_command(args: argparse.Namespace) -> int:
     rules = _DEFAULT_RULES
     if args.rules:
         try:
-            rules = _load_rules(args.rules)
+            custom_rules = _load_rules(args.rules)
         except Exception as exc:
             print(f"Error loading rules file: {exc}")
             return 1
+        rules = _merge_rules(_DEFAULT_RULES, custom_rules) if args.merge_rules else custom_rules
 
     result = tag_config(config, rules)
 
