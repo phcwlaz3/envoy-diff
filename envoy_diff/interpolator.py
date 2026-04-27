@@ -51,6 +51,21 @@ def _resolve_value(
     return _REF_PATTERN.sub(replacer, value)
 
 
+def find_references(value: str) -> List[str]:
+    """Return a list of variable names referenced in *value*.
+
+    Scans for all ``${VAR}`` tokens and returns the inner variable names in
+    the order they appear.  Duplicates are preserved.
+
+    Args:
+        value: A raw config value string that may contain ``${VAR}`` tokens.
+
+    Returns:
+        List of referenced variable names, e.g. ``['HOME', 'USER']``.
+    """
+    return _REF_PATTERN.findall(value)
+
+
 def interpolate_config(
     config: Dict[str, str],
     extra_context: Optional[Dict[str, str]] = None,
